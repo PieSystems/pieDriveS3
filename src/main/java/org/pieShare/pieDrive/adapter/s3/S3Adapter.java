@@ -9,8 +9,11 @@ package org.pieShare.pieDrive.adapter.s3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -54,10 +57,21 @@ public class S3Adapter implements Adaptor{
 			objectData.close();
 			
 		} catch(IOException e){
-			//TODO
+			//throw new FileNotFoundException();
 		}
 	}
-    
 	
-
+	public boolean find(PieDriveFile file){
+		ObjectListing listing = s3client.listObjects(bucketName);
+		boolean ret = false;
+		
+		for (S3ObjectSummary objectSummary : listing.getObjectSummaries()) {
+			ret = objectSummary.getKey().equals(file.getUuid());
+			if(ret == true){
+				break;
+			}
+		}
+		
+		return ret;
+	}
 }
