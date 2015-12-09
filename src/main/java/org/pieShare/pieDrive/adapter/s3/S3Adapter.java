@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import org.pieShare.pieDrive.adapter.api.Adaptor;
 import org.pieShare.pieDrive.adapter.exceptions.AdaptorException;
 import org.pieShare.pieDrive.adapter.model.PieDriveFile;
+import org.pieShare.pieTools.pieUtilities.service.pieLogger.PieLogger;
 
 
 public class S3Adapter implements Adaptor{
@@ -38,6 +39,7 @@ public class S3Adapter implements Adaptor{
 	public void delete(PieDriveFile file) throws AdaptorException {
 		try{
 			s3client.deleteObject(new DeleteObjectRequest(bucketName, file.getUuid()));
+			PieLogger.trace(S3Adapter.class, "{} deleted", file.getUuid());
 		} catch (AmazonServiceException ase) {
 			throw new AdaptorException(ase);
 		} catch (AmazonClientException ace) {
@@ -48,7 +50,8 @@ public class S3Adapter implements Adaptor{
 	@Override
 	public void upload(PieDriveFile file, InputStream stream) throws AdaptorException {
 		try{
-		s3client.putObject(new PutObjectRequest(bucketName, file.getUuid(), stream, null));
+			s3client.putObject(new PutObjectRequest(bucketName, file.getUuid(), stream, null));
+			PieLogger.trace(S3Adapter.class, "{} uploaded", file.getUuid());
 		} catch (AmazonServiceException ase) {
 			throw new AdaptorException(ase);
 		} catch (AmazonClientException ace) {
@@ -76,6 +79,7 @@ public class S3Adapter implements Adaptor{
 
 			stream.close();
 			objectData.close();
+			PieLogger.trace(S3Adapter.class, "{} downloaded", file.getUuid());
 			
 		} catch(IOException e){
 			throw new AdaptorException(e);
