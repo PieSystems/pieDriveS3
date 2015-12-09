@@ -16,6 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test; 
 import org.junit.runner.RunWith;
+import org.pieShare.pieDrive.adapter.exceptions.AdaptorException;
 import org.pieShare.pieDrive.adapter.model.PieDriveFile;
 import org.pieShare.pieDrive.adapter.s3.S3Adapter;
 import org.pieShare.pieDrive.adapter.s3.configuration.S3AdapterConfig;
@@ -71,7 +72,9 @@ public class S3AdapterTest {
             Assert.fail();
         }
 		
+		try{
 		s3Client.upload(file, st);
+		}catch (AdaptorException ae){}
 		
 		boolean found = s3Client.find(file);
 		
@@ -82,7 +85,9 @@ public class S3AdapterTest {
 		 File donwloadedFile = new File("downloaded" + file.getUuid());
 
         try {
+			try{
             s3Client.download(file, new FileOutputStream(donwloadedFile));
+			}catch (AdaptorException ae){}
         } catch (FileNotFoundException ex) {
             Assert.fail();
         }
@@ -104,7 +109,10 @@ public class S3AdapterTest {
 		fileFound = s3Client.find(file);
 		Assert.assertTrue(fileFound);
 		
+		try{
 		s3Client.delete(file);
+		}catch (AdaptorException ae){}
+		
 		fileFound = s3Client.find(file);
 		Assert.assertFalse(fileFound);
 	}

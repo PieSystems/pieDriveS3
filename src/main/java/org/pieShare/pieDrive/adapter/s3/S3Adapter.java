@@ -13,8 +13,10 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.Region;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.Region;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,8 +26,13 @@ import org.pieShare.pieDrive.adapter.model.PieDriveFile;
 
 
 public class S3Adapter implements Adaptor{
-    private AmazonS3Client s3client = new AmazonS3Client();
-	private String bucketName = "g4t2";
+    private AmazonS3Client s3client;
+	private final String bucketName = "g4t2";
+	
+	public S3Adapter(){
+		this.s3client = new AmazonS3Client();
+		s3client.setRegion(Region.EU_Frankfurt.toAWSRegion());
+	}
 
 	@Override
 	public void delete(PieDriveFile file) throws AdaptorException {
