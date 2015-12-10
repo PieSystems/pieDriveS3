@@ -12,11 +12,13 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.Region;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.Region;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -48,15 +50,20 @@ public class S3Adapter implements Adaptor{
 	}
 
 	@Override
-	public void upload(PieDriveFile file, InputStream stream) throws AdaptorException {
+	public synchronized void upload(PieDriveFile file, InputStream stream) throws AdaptorException {
 		try{
-			s3client.putObject(new PutObjectRequest(bucketName, file.getUuid(), stream, null));
+			ObjectMetadata meta = new ObjectMetadata();
+			meta.setContentLength(file.getSize());
+			PutObjectRequest req = new PutObjectRequest(bucketName, file.getUuid(), stream, meta);
+			//req.getRequestClientOptions().setReadLimit(64);
+			s3client.putObject(req);
+			//Thread.sleep(2000);
 			PieLogger.trace(S3Adapter.class, "{} uploaded", file.getUuid());
 		} catch (AmazonServiceException ase) {
 			throw new AdaptorException(ase);
 		} catch (AmazonClientException ace) {
 			throw new AdaptorException(ace);
-        }
+        } catch (Exception e){}
 	}
 
 	@Override

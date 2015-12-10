@@ -32,7 +32,7 @@ public class S3AdapterTest {
 	private S3Adapter s3Client;
 	private PieDriveFile file;
 	private File testFile;
-	byte[] content = "This is a test content".getBytes();
+	byte[] content = "This is a test content!!!!!!!!!!".getBytes();
 
 	@Before
     public void init() {
@@ -55,7 +55,7 @@ public class S3AdapterTest {
         }
 
         file = new PieDriveFile();
-
+		file.setSize(content.length);
         file.setUuid(uid.toString());
     }
 	
@@ -122,5 +122,41 @@ public class S3AdapterTest {
 		upload();
 		download();
 		delete();
+	}
+	
+	@Test
+	public void bigUpTest(){
+		uploadBig();
+		//delete();
+	}
+
+	private void uploadBig() {
+		UUID uid = UUID.randomUUID();
+        testFile = new File(uid.toString());
+
+        if (testFile.exists()) {
+            testFile.delete();
+        }
+		
+        FileOutputStream ff;
+        try {
+            ff = new FileOutputStream(testFile);
+			for (int i = 0; i < 3125000; i++) {
+				ff.write(content);
+			}
+            ff.close();
+        } catch (FileNotFoundException ex) {
+            Assert.fail(ex.getMessage());
+        } catch (IOException ex) {
+            Assert.fail(ex.getMessage());
+        }
+
+        file = new PieDriveFile();
+
+		file.setSize(content.length*3125000);
+		
+        file.setUuid(uid.toString());
+		
+		upload();
 	}
 }
