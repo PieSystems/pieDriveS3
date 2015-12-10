@@ -124,7 +124,7 @@ public class S3AdapterTest {
 		delete();
 	}
 	
-	@Test
+	//@Test
 	public void bigUpTest(){
 		uploadBig();
 		//delete();
