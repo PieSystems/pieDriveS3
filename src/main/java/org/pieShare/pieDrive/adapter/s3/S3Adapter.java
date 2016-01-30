@@ -12,6 +12,7 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.PropertiesFileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.S3ClientOptions;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
@@ -32,6 +33,7 @@ import org.pieShare.pieTools.pieUtilities.service.pieLogger.PieLogger;
 public class S3Adapter implements Adaptor{
     private AmazonS3Client s3client;
 	private final String bucketName = "g4t2aic2015";
+	private AWSCredentialsProvider provider;
 	
 	public S3Adapter(){
 		loadConf();
@@ -41,13 +43,8 @@ public class S3Adapter implements Adaptor{
 		String path = System.getProperty("user.home");
 		File pieDrive = new File(path, ".pieDrive");
 		File awsFile = new File(pieDrive, "aws");
-		
-		AWSCredentialsProvider provider = new ProfileCredentialsProvider(awsFile.getAbsolutePath(), "default");
-		this.s3client = new AmazonS3Client(provider);
 
-		if(!s3client.doesBucketExist(bucketName)){
-			s3client.createBucket(bucketName);
-		}
+		provider = new ProfileCredentialsProvider(awsFile.getAbsolutePath(), "default");
 	}
 
 	@Override
@@ -122,5 +119,21 @@ public class S3Adapter implements Adaptor{
 		}
 		
 		return ret;
+	}
+
+	@Override
+	public boolean authenticate() {
+		this.provider.refresh();
+		this.s3client = new AmazonS3Client(this.provider);
+		
+		try{
+			if(!(s3client.doesBucketExist(bucketName))){
+				s3client.createBucket(bucketName);
+			}
+		} catch(Exception e){
+			return false;
+		}
+		
+		return true;
 	}
 }
