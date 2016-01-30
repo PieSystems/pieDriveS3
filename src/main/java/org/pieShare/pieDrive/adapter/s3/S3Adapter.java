@@ -30,11 +30,14 @@ import org.pieShare.pieTools.pieUtilities.service.pieLogger.PieLogger;
 
 public class S3Adapter implements Adaptor{
     private AmazonS3Client s3client;
-	private final String bucketName = "g4t2";
+	private final String bucketName = "g4t2aic2015";
 	
 	public S3Adapter(){
 		this.s3client = new AmazonS3Client();
-		s3client.setRegion(Region.EU_Frankfurt.toAWSRegion());
+
+		if(!s3client.doesBucketExist(bucketName)){
+			s3client.createBucket(bucketName);
+		}
 	}
 
 	@Override
