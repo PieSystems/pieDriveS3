@@ -34,7 +34,6 @@ public class S3Authentication {
 			return false;
 		}
 
-		provider.refresh();
 		this.client = new AmazonS3Client(this.provider);
 		
 		try{
