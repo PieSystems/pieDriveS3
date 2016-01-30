@@ -33,24 +33,24 @@ import org.pieShare.pieTools.pieUtilities.service.pieLogger.PieLogger;
 public class S3Adapter implements Adaptor{
     private AmazonS3Client s3client;
 	private final String bucketName = "g4t2aic2015";
-	private AWSCredentialsProvider provider;
+	private S3Authentication s3Auth;
 	
 	public S3Adapter(){
 		loadConf();
 	}
 	
+	public void setS3Authentication(S3Authentication s3Auth){
+		this.s3Auth = s3Auth;
+	}
+	
 	private void loadConf(){
-		String path = System.getProperty("user.home");
-		File pieDrive = new File(path, ".pieDrive");
-		File awsFile = new File(pieDrive, "aws");
-
-		provider = new ProfileCredentialsProvider(awsFile.getAbsolutePath(), "default");
+		
 	}
 
 	@Override
 	public void delete(PieDriveFile file) throws AdaptorException {
 		try{
-			s3client.deleteObject(new DeleteObjectRequest(bucketName, file.getUuid()));
+			s3Auth.getClient().deleteObject(new DeleteObjectRequest(bucketName, file.getUuid()));
 			PieLogger.trace(S3Adapter.class, "{} deleted", file.getUuid());
 		} catch (AmazonServiceException ase) {
 			throw new AdaptorException(ase);
@@ -66,7 +66,7 @@ public class S3Adapter implements Adaptor{
 			meta.setContentLength(file.getSize());
 			PutObjectRequest req = new PutObjectRequest(bucketName, file.getUuid(), stream, meta);
 			//req.getRequestClientOptions().setReadLimit(64);
-			s3client.putObject(req);
+			s3Auth.getClient().putObject(req);
 			//Thread.sleep(2000);
 			PieLogger.trace(S3Adapter.class, "{} uploaded", file.getUuid());
 		} catch (AmazonServiceException ase) {
@@ -81,7 +81,7 @@ public class S3Adapter implements Adaptor{
 		byte[] buf = new byte[1024];
 		int count = 0;
 		
-		S3Object object = s3client.getObject(new GetObjectRequest(bucketName, file.getUuid()));
+		S3Object object = s3Auth.getClient().getObject(new GetObjectRequest(bucketName, file.getUuid()));
 		InputStream objectData = object.getObjectContent();
 		
 		try{
@@ -108,7 +108,7 @@ public class S3Adapter implements Adaptor{
 	}
 	
 	public boolean find(PieDriveFile file){
-		ObjectListing listing = s3client.listObjects(bucketName);
+		ObjectListing listing = s3Auth.getClient().listObjects(bucketName);
 		boolean ret = false;
 		
 		for (S3ObjectSummary objectSummary : listing.getObjectSummaries()) {
@@ -119,21 +119,5 @@ public class S3Adapter implements Adaptor{
 		}
 		
 		return ret;
-	}
-
-	@Override
-	public boolean authenticate() {
-		this.provider.refresh();
-		this.s3client = new AmazonS3Client(this.provider);
-		
-		try{
-			if(!(s3client.doesBucketExist(bucketName))){
-				s3client.createBucket(bucketName);
-			}
-		} catch(Exception e){
-			return false;
-		}
-		
-		return true;
 	}
 }
