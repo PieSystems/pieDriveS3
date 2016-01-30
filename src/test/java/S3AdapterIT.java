@@ -26,7 +26,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = S3AdapterConfig.class)
-public class S3AdapterTest {
+public class S3AdapterIT {
 	
 	@Autowired
 	private S3Adapter s3Client;
