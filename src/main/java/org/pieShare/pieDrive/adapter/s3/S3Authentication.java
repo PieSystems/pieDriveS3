@@ -16,17 +16,24 @@ public class S3Authentication {
 	private AmazonS3Client client;
 	private final String bucketName = "g4t2aic2015";
 	private AWSCredentialsProvider provider;
+	private String path;
 	
 	public S3Authentication(){
 		String path = System.getProperty("user.home");
 		File pieDrive = new File(path, ".pieDrive");
 		File awsFile = new File(pieDrive, "aws");
+		this.path = awsFile.getAbsolutePath();
 
-		provider = new ProfileCredentialsProvider(awsFile.getAbsolutePath(), "default");
-		authenticate();
+		
 	}
 	
 	public boolean authenticate(){
+		try{
+			provider = new ProfileCredentialsProvider(path, "default");
+		}catch (Exception e){
+			return false;
+		}
+
 		provider.refresh();
 		this.client = new AmazonS3Client(this.provider);
 		
