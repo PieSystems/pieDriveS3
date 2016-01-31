@@ -6,6 +6,8 @@
 
 package org.pieShare.pieDrive.adapter.s3;
 
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -30,15 +32,13 @@ public class S3Authentication {
 	public boolean authenticate(){
 		try{
 			provider = new ProfileCredentialsProvider(path, "default");
-		}catch (Exception e){
-			return false;
-		}
 
-		this.client = new AmazonS3Client(this.provider);
-		
-		try{
+			this.client = new AmazonS3Client(this.provider);
+
 			client.createBucket(bucketName);
-		} catch(Exception e){
+		} catch(AmazonServiceException e){
+			return false;
+		} catch(AmazonClientException e){
 			return false;
 		}
 		
