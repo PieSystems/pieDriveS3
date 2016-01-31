@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import javax.annotation.PostConstruct;
 import org.pieShare.pieDrive.adapter.api.Adaptor;
 import org.pieShare.pieDrive.adapter.exceptions.AdaptorException;
 import org.pieShare.pieDrive.adapter.model.PieDriveFile;
@@ -38,15 +39,15 @@ public class S3Adapter implements Adaptor{
 	private S3Authentication s3Auth;
 	
 	public S3Adapter(){
-		loadConf();
+	}
+	
+	@PostConstruct
+	private void auth(){
+		s3Auth.authenticate();
 	}
 	
 	public void setS3Authentication(S3Authentication s3Auth){
 		this.s3Auth = s3Auth;
-	}
-	
-	private void loadConf(){
-		
 	}
 
 	@Override
