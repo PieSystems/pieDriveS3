@@ -28,11 +28,13 @@ import org.pieShare.pieDrive.adapter.api.Adaptor;
 import org.pieShare.pieDrive.adapter.exceptions.AdaptorException;
 import org.pieShare.pieDrive.adapter.model.PieDriveFile;
 import org.pieShare.pieTools.pieUtilities.service.pieLogger.PieLogger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 public class S3Adapter implements Adaptor{
     private AmazonS3Client s3client;
 	private final String bucketName = "g4t2aic2015";
+	@Autowired
 	private S3Authentication s3Auth;
 	
 	public S3Adapter(){
