@@ -24,7 +24,7 @@ public class S3Authentication {
 		File awsFile = new File(pieDrive, "aws");
 		this.path = awsFile.getAbsolutePath();
 
-		
+		this.client = new AmazonS3Client();
 	}
 	
 	public boolean authenticate(){
@@ -37,9 +37,7 @@ public class S3Authentication {
 		this.client = new AmazonS3Client(this.provider);
 		
 		try{
-			if(!(client.doesBucketExist(bucketName))){
-				client.createBucket(bucketName);
-			}
+			client.createBucket(bucketName);
 		} catch(Exception e){
 			return false;
 		}
